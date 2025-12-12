@@ -1,6 +1,6 @@
 # Lumina Task Manager
 
-[![Deploy to Cloudflare]([cloudflarebutton])]([cloudflarebutton])
+[![Deploy to Cloudflare]([![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/prakhart111/lumina-task-manager))]([![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/prakhart111/lumina-task-manager))
 
 A stunningly beautiful, minimalist task management application designed to bring clarity and calm to productivity. Lumina features generous whitespace, subtle motion design, and a focus on 'one thing at a time' with drag-and-drop organization, fluid animations, and a distraction-free focus mode.
 
@@ -94,7 +94,7 @@ This builds the app and deploys via Wrangler. Your app will be live at `https://
 
 For custom domains or advanced config, edit `wrangler.jsonc`.
 
-[![Deploy to Cloudflare]([cloudflarebutton])]([cloudflarebutton])
+[![Deploy to Cloudflare]([![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/prakhart111/lumina-task-manager))]([![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/prakhart111/lumina-task-manager))
 
 ## 🤝 Contributing
 
