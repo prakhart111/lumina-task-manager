@@ -1,138 +1,82 @@
-// Home page of the app.
-// Currently a demo placeholder "please wait" screen.
-// Replace this file with your actual app UI. Do not delete it to use some other file as homepage. Simply replace the entire contents of this file.
-
-import { useEffect, useMemo, useState } from 'react'
-import { Sparkles } from 'lucide-react'
-
-import { ThemeToggle } from '@/components/ThemeToggle'
-import { HAS_TEMPLATE_DEMO, TemplateDemo } from '@/components/TemplateDemo'
-import { Button } from '@/components/ui/button'
-import { Toaster, toast } from '@/components/ui/sonner'
-
-function formatDuration(ms: number): string {
-  const total = Math.max(0, Math.floor(ms / 1000))
-  const m = Math.floor(total / 60)
-  const s = total % 60
-  return `${m}:${s.toString().padStart(2, '0')}`
-}
-
+import React, { useMemo } from 'react';
+import { format } from 'date-fns';
+import { AnimatePresence, motion } from 'framer-motion';
+import { AppLayout } from '@/components/layout/AppLayout';
+import { ThemeToggle } from '@/components/ThemeToggle';
+import { StatsWidget } from '@/components/dashboard/StatsWidget';
+import { CreateTask } from '@/components/tasks/CreateTask';
+import { TaskList } from '@/components/tasks/TaskList';
+import { useTaskStore } from '@/store/useTaskStore';
+import { isToday, isFuture, isPast } from 'date-fns';
 export function HomePage() {
-  const [coins, setCoins] = useState(0)
-  const [isRunning, setIsRunning] = useState(false)
-  const [startedAt, setStartedAt] = useState<number | null>(null)
-  const [elapsedMs, setElapsedMs] = useState(0)
-
-  useEffect(() => {
-    if (!isRunning || startedAt === null) return
-
-    const t = setInterval(() => {
-      setElapsedMs(Date.now() - startedAt)
-    }, 250)
-
-    return () => clearInterval(t)
-  }, [isRunning, startedAt])
-
-  const formatted = useMemo(() => formatDuration(elapsedMs), [elapsedMs])
-
-  const onPleaseWait = () => {
-    setCoins((c) => c + 1)
-
-    if (!isRunning) {
-      // Resume from the current elapsed time
-      setStartedAt(Date.now() - elapsedMs)
-      setIsRunning(true)
-      toast.success('Building your app…', {
-        description: "Hang tight — we're setting everything up.",
-      })
-      return
+  const tasks = useTaskStore(s => s.tasks);
+  const activeFilter = useTaskStore(s => s.activeFilter);
+  const filteredTasks = useMemo(() => {
+    switch (activeFilter) {
+      case 'today':
+        return tasks.filter(task => isToday(new Date(task.createdAt)) && !task.completed);
+      case 'upcoming':
+        return tasks.filter(task => isFuture(new Date(task.createdAt)) && !task.completed);
+      case 'completed':
+        return tasks.filter(task => task.completed);
+      case 'all':
+        return tasks.filter(task => !task.completed);
+      default: // Category filter
+        return tasks.filter(task => task.categoryId === activeFilter && !task.completed);
     }
-
-    setIsRunning(false)
-    toast.info('Still working…', {
-      description: 'You can come back in a moment.',
-    })
-  }
-
-  const onReset = () => {
-    setCoins(0)
-    setIsRunning(false)
-    setStartedAt(null)
-    setElapsedMs(0)
-    toast('Reset complete')
-  }
-
-  const onAddCoin = () => {
-    setCoins((c) => c + 1)
-    toast('Coin added')
-  }
-
+  }, [tasks, activeFilter]);
+  const getFilterTitle = () => {
+    switch (activeFilter) {
+      case 'today': return 'Today\'s Tasks';
+      case 'upcoming': return 'Upcoming Tasks';
+      case 'completed': return 'Completed Tasks';
+      case 'all': return 'Inbox';
+      default:
+        const category = useTaskStore.getState().categories.find(c => c.id === activeFilter);
+        return category ? category.name : 'Inbox';
+    }
+  };
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground p-4 overflow-hidden relative">
-      <ThemeToggle />
-      <div className="absolute inset-0 bg-gradient-rainbow opacity-10 dark:opacity-20 pointer-events-none" />
-
-      <div className="text-center space-y-8 relative z-10 animate-fade-in w-full">
-        <div className="flex justify-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-primary flex items-center justify-center shadow-primary floating">
-            <Sparkles className="w-8 h-8 text-white rotating" />
+    <AppLayout>
+      <div className="flex flex-col h-screen">
+        <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between h-16">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Good Morning!</h1>
+                <p className="text-sm text-muted-foreground">{format(new Date(), 'EEEE, MMMM d')}</p>
+              </div>
+              <ThemeToggle className="relative top-0 right-0" />
+            </div>
           </div>
-        </div>
-
-        <div className="space-y-3">
-          <h1 className="text-5xl md:text-7xl font-display font-bold text-balance leading-tight">
-            Creating your <span className="text-gradient">app</span>
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground max-w-xl mx-auto text-pretty">
-            Your application would be ready soon.
-          </p>
-        </div>
-
-        {HAS_TEMPLATE_DEMO ? (
-          <div className="max-w-5xl mx-auto text-left">
-            <TemplateDemo />
-          </div>
-        ) : (
-          <>
-            <div className="flex justify-center gap-4">
-              <Button
-                size="lg"
-                onClick={onPleaseWait}
-                className="btn-gradient px-8 py-4 text-lg font-semibold hover:-translate-y-0.5 transition-all duration-200"
-                aria-live="polite"
+        </header>
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="py-8 md:py-10 lg:py-12">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="space-y-8"
               >
-                Please Wait
-              </Button>
+                <StatsWidget />
+                <div className="space-y-6">
+                  <CreateTask />
+                  <div className="space-y-4">
+                    <h2 className="text-xl font-semibold tracking-tight">{getFilterTitle()}</h2>
+                    <AnimatePresence>
+                      <TaskList tasks={filteredTasks} />
+                    </AnimatePresence>
+                  </div>
+                </div>
+              </motion.div>
             </div>
-
-            <div className="flex items-center justify-center gap-6 text-sm text-muted-foreground">
-              <div>
-                Time elapsed:{' '}
-                <span className="font-medium tabular-nums text-foreground">{formatted}</span>
-              </div>
-              <div>
-                Coins:{' '}
-                <span className="font-medium tabular-nums text-foreground">{coins}</span>
-              </div>
-            </div>
-
-            <div className="flex justify-center gap-2">
-              <Button variant="outline" size="sm" onClick={onReset}>
-                Reset
-              </Button>
-              <Button variant="outline" size="sm" onClick={onAddCoin}>
-                Add Coin
-              </Button>
-            </div>
-          </>
-        )}
+          </div>
+        </main>
+        <footer className="py-4 text-center text-sm text-muted-foreground border-t">
+          Built with ❤��� at Cloudflare
+        </footer>
       </div>
-
-      <footer className="absolute bottom-8 text-center text-muted-foreground/80">
-        <p>Powered by Cloudflare</p>
-      </footer>
-
-      <Toaster richColors closeButton />
-    </div>
-  )
+    </AppLayout>
+  );
 }

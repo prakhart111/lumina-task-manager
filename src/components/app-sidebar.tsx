@@ -1,73 +1,68 @@
-/* This is a demo sidebar. **COMPULSORY** Edit this file to customize the sidebar OR remove it from appLayout OR don't use appLayout at all */
-import React from "react";
-import { Home, Layers, Compass, Star, Settings, LifeBuoy } from "lucide-react";
+import React from 'react';
+import { Inbox, Calendar, CheckSquare, Tag, Circle } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
   SidebarHeader,
-  SidebarSeparator,
-  SidebarInput,
+  SidebarGroup,
   SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
-  SidebarMenuAction,
-  SidebarMenuBadge,
-} from "@/components/ui/sidebar";
-
+} from '@/components/ui/sidebar';
+import { useTaskStore } from '@/store/useTaskStore';
+import { cn } from '@/lib/utils';
 export function AppSidebar(): JSX.Element {
+  const categories = useTaskStore(state => state.categories);
+  const activeFilter = useTaskStore(state => state.activeFilter);
+  const setFilter = useTaskStore(state => state.setFilter);
   return (
     <Sidebar>
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 py-1">
-          <div className="h-6 w-6 rounded-md bg-gradient-to-br from-indigo-500 to-purple-500" />
-          <span className="text-sm font-medium">Demo Sidebar</span>
+          <div className="h-6 w-6 rounded-md bg-gradient-to-br from-indigo-500 to-pink-500" />
+          <span className="text-lg font-semibold tracking-tight">Lumina</span>
         </div>
-        <SidebarInput placeholder="Search" />
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive>
-                <a href="#"><Home /> <span>Home</span></a>
+              <SidebarMenuButton onClick={() => setFilter('all')} isActive={activeFilter === 'all'}>
+                <Inbox /> <span>Inbox</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="#"><Layers /> <span>Projects</span></a>
+              <SidebarMenuButton onClick={() => setFilter('today')} isActive={activeFilter === 'today'}>
+                <Calendar /> <span>Today</span>
               </SidebarMenuButton>
-              <SidebarMenuAction>
-                <Star className="size-4" />
-              </SidebarMenuAction>
             </SidebarMenuItem>
             <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="#"><Compass /> <span>Explore</span></a>
+              <SidebarMenuButton onClick={() => setFilter('upcoming')} isActive={activeFilter === 'upcoming'}>
+                <Calendar /> <span>Upcoming</span>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+            <SidebarMenuItem>
+              <SidebarMenuButton onClick={() => setFilter('completed')} isActive={activeFilter === 'completed'}>
+                <CheckSquare /> <span>Completed</span>
               </SidebarMenuButton>
             </SidebarMenuItem>
           </SidebarMenu>
         </SidebarGroup>
-
-        <SidebarSeparator />
-
         <SidebarGroup>
-          <SidebarGroupLabel>Quick Links</SidebarGroupLabel>
+          <SidebarGroupLabel className="flex items-center gap-2"><Tag className="size-4" /> Categories</SidebarGroupLabel>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <a href="#"><Star /> <span>Starred</span></a>
-              </SidebarMenuButton>
-              <SidebarMenuBadge>5</SidebarMenuBadge>
-            </SidebarMenuItem>
+            {categories.map(category => (
+              <SidebarMenuItem key={category.id}>
+                <SidebarMenuButton onClick={() => setFilter(category.id)} isActive={activeFilter === category.id}>
+                  <span className={cn("h-3 w-3 rounded-full", category.color)}></span>
+                  <span>{category.name}</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter>
-        <div className="px-2 text-xs text-muted-foreground">A simple shadcn sidebar</div>
-      </SidebarFooter>
     </Sidebar>
   );
 }
